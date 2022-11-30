@@ -65,7 +65,7 @@ After running the application, just go to `http://localhost:8000/swagger-ui.html
 To log in, follow the API flow below.
 
 ## API Flow
-To haven an easier process, a postman collection is provided under `.postman/collection.json`. 
+To have an easier process, a postman collection is provided under `.postman/collection.json`. 
 
 Import the collection in to your postman app and then run the requests as you like.
 Credentials are already saved there for you.
