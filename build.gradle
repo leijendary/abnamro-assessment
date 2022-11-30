@@ -1,0 +1,92 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.0.0'
+    id 'io.spring.dependency-management' version '1.1.0'
+    id 'org.hibernate.orm' version '6.1.5.Final'
+}
+
+group = 'nl.abnamro'
+description = 'Technical assessment for ABN AMRO - Senior Software Engineer'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = JavaVersion.VERSION_17
+
+ext {
+    lombokVersion = '1.18.24'
+    mapstructVersion = '1.5.3.Final'
+    openApiVersion = '2.0.0'
+    javafakerVersion = '1.0.2'
+    jacksonDataTypeVersion = '2.14.1'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Spring boot starter
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    // Security
+    implementation 'org.springframework.security:spring-security-oauth2-jose'
+
+    // Database
+    implementation 'org.liquibase:liquibase-core'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // Jackson
+    implementation "com.fasterxml.jackson.datatype:jackson-datatype-jsr310:$jacksonDataTypeVersion"
+
+    // Lombok
+    compileOnly "org.projectlombok:lombok:$lombokVersion"
+    annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+    testCompileOnly "org.projectlombok:lombok:$lombokVersion"
+    testAnnotationProcessor "org.projectlombok:lombok:$lombokVersion"
+
+    // Devtools
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+
+    // Mapstruct
+    implementation "org.mapstruct:mapstruct:$mapstructVersion"
+    annotationProcessor "org.mapstruct:mapstruct-processor:$mapstructVersion"
+
+    // OpenAPI
+    implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:$openApiVersion"
+
+    // Faker
+    testImplementation "com.github.javafaker:javafaker:$javafakerVersion"
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
+tasks.named('processResources') {
+    filesMatching("application.yaml") {
+        expand(project.properties)
+    }
+}
+
+hibernate {
+    enhancement {
+        lazyInitialization true
+        dirtyTracking true
+        associationManagement true
+    }
+}
+
+jar {
+    enabled = false
+}

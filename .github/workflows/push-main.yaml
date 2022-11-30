@@ -1,0 +1,15 @@
+on:
+  push:
+    branches:
+      - main
+      # Only main since this is the only branch for this solution.
+      # Normally, I add the following:
+      # 1. On push (all branches)
+      # 2. On PR create/update
+      # 3. On PR merge
+
+jobs:
+  test:
+    name: JUnit
+    uses: ./.github/workflows/test.yaml
+    secrets: inherit

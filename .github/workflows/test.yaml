@@ -1,0 +1,32 @@
+on: workflow_call
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: 'temurin'
+          cache: 'gradle'
+      - name: Execute Gradle Test
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: test --info
+        env:
+          SPRING_PROFILES_ACTIVE: cicd
+    services:
+      postgres:
+        image: postgres:14-alpine
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_PASSWORD: 12345678
+          POSTGRES_DB: abnamro_assessment
+      redis:
+        image: redis:6-alpine
+        ports:
+          - 6379:6379

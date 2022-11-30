@@ -1,0 +1,1 @@
+package nl.abnamro.assessment.core;

@@ -1,0 +1,50 @@
+version: "3.9"
+services:
+  abnamro-assessment:
+    build: .
+    container_name: abnamro-assessment
+    ports:
+      - "8000:8000"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://abnamro-postgres:5432/abnamro_assessment
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: 12345678
+      SPRING_DATA_REDIS_HOST: abnamro-redis
+      SPRING_DATA_REDIS_PORT: 6379
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: https://leijendary.us.auth0.com/
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: https://leijendary.us.auth0.com/.well-known/jwks.json
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_AUDIENCES: http://localhost:8000
+    networks:
+      - assessment_network
+    deploy:
+      resources:
+        reservations:
+          memory: 1G
+          cpus: "0.5"
+        limits:
+          memory: 1G
+          cpus: "0.5"
+    depends_on:
+      - postgres
+      - redis
+  postgres:
+    image: postgres:14-alpine
+    container_name: abnamro-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: abnamro_assessment
+    networks:
+      - assessment_network
+  redis:
+    image: redis:6-alpine
+    container_name: abnamro-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - assessment_network
+
+networks:
+  assessment_network:
+    name: assessment_network

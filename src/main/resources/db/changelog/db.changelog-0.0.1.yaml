@@ -1,0 +1,226 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-recipe-table
+      author: Leijendekker
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    unique: true
+              - column:
+                  name: title
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: title_search
+                  type: tsvector
+                  constraints:
+                    nullable: false
+              - column:
+                  name: dish_type
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: serving_size
+                  type: smallint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: version
+                  type: int
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+                  defaultValueDate: current_timestamp
+              - column:
+                  name: created_by
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_modified_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+                  defaultValueDate: current_timestamp
+              - column:
+                  name: last_modified_by
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: deleted_at
+                  type: timestamp
+              - column:
+                  name: deleted_by
+                  type: text
+            tableName: recipe
+  - changeSet:
+      id: add-recipe-title-case-insensitive-unique-constraint
+      author: Leijendekker
+      changes:
+        - sql:
+            sql: create unique index recipe_title_key
+              on recipe (lower(title))
+              where deleted_at is null;
+  - changeSet:
+      id: create-instruction-table
+      author: Leijendekker
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: detail
+                  type: longtext
+                  constraints:
+                    nullable: false
+              - column:
+                  name: detail_search
+                  type: tsvector
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ordinal
+                  type: int
+                  constraints:
+                    nullable: false
+            tableName: recipe_instruction
+  - changeSet:
+      id: add-recipe-instruction-primary-key
+      author: Leijendekker
+      changes:
+        - addPrimaryKey:
+            columnNames: id, detail
+            constraintName: recipe_instruction_id_pkey
+            tableName: recipe_instruction
+            validate: true
+  - changeSet:
+      id: add-recipe-instruction-to-recipe-foreign-key
+      author: Leijendekker
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: id
+            baseTableName: recipe_instruction
+            constraintName: recipe_instruction_id_fkey
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: recipe
+            validate: true
+  - changeSet:
+      id: create-ingredient-table
+      author: Leijendekker
+      changes:
+        - createTable:
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(200)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: value
+                  type: varchar(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: unit
+                  type: varchar(5)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ordinal
+                  type: int
+                  constraints:
+                    nullable: false
+            tableName: recipe_ingredient
+  - changeSet:
+      id: add-recipe-ingredient-primary-key
+      author: Leijendekker
+      changes:
+        - addPrimaryKey:
+            columnNames: id, name
+            constraintName: recipe_ingredient_id_pkey
+            tableName: recipe_ingredient
+            validate: true
+  - changeSet:
+      id: add-recipe-ingredient-to-recipe-foreign-key
+      author: Leijendekker
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: id
+            baseTableName: recipe_ingredient
+            constraintName: recipe_ingredient_id_fkey
+            deferrable: false
+            initiallyDeferred: false
+            onDelete: NO ACTION
+            onUpdate: NO ACTION
+            referencedColumnNames: id
+            referencedTableName: recipe
+            validate: true
+  - changeSet:
+      id: add-recipe-title-search-trigger
+      author: Leijendekker
+      changes:
+        - sql:
+            sql:
+              CREATE FUNCTION recipe_title_search_trigger() RETURNS trigger AS $$
+              begin
+                new.title_search := to_tsvector(new.title);
+                return new;
+              end
+              $$ LANGUAGE plpgsql;
+        - sql:
+            sql:
+              CREATE TRIGGER recipe_title_search_update BEFORE INSERT OR UPDATE
+              ON recipe FOR EACH ROW EXECUTE PROCEDURE recipe_title_search_trigger();
+        - sql:
+            sql:
+              CREATE INDEX recipe_title_search_idx
+              ON recipe
+              USING GIN (title_search);
+  - changeSet:
+      id: add-recipe-instruction-detail-search-trigger
+      author: Leijendekker
+      changes:
+        - sql:
+            sql:
+              CREATE FUNCTION recipe_instruction_detail_search_trigger() RETURNS trigger AS $$
+              begin
+                new.detail_search := to_tsvector(new.detail);
+                return new;
+              end
+              $$ LANGUAGE plpgsql;
+        - sql:
+            sql:
+              CREATE TRIGGER recipe_instruction_detail_search_update BEFORE INSERT OR UPDATE
+              ON recipe_instruction FOR EACH ROW EXECUTE PROCEDURE recipe_instruction_detail_search_trigger();
+        - sql:
+            sql:
+              CREATE INDEX recipe_instruction_detail_search_idx
+              ON recipe_instruction
+              USING GIN (detail_search);

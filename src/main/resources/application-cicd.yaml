@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/abnamro_assessment
+    username: postgres
+    password: 12345678
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuerUri: https://leijendary.us.auth0.com/
+          jwkSetUri: https://leijendary.us.auth0.com/.well-known/jwks.json
+          audiences: http://localhost:8000

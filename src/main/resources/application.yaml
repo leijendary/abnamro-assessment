@@ -1,0 +1,81 @@
+info:
+  app:
+    organization: leijendary
+    group: ${group}
+    name: ${name}
+    description: ${description}
+    version: ${version}
+  api:
+    termsOfService:
+    contact:
+      name: Jonathan Leijendekker
+      url: https://leijendary.com
+      email:
+    license:
+      name: Jonathan Leijendekker
+      url: https://leijendary.com
+
+auth:
+  anonymousUser:
+    principal: Anonymous User
+
+spring:
+  application:
+    name: \${info.app.name}
+  main:
+    # Do not log the Spring banner. Use custom banner.
+    bannerMode: log
+  cache:
+    # Use the Redis instance for caching instead of in-memory cache
+    type: redis
+    redis:
+      # 5 hours is just a random variable
+      timeToLive: 5h
+  data:
+    redis:
+      host:
+      port:
+    web:
+      pageable:
+        maxPageSize: 50
+  datasource:
+    url:
+    username:
+    password:
+  jpa:
+    # Disable opening the JPA session without demanding for it.
+    openInView: false
+  messages:
+    basename: messages.access, messages.error, messages.validation
+  mvc:
+    throwExceptionIfNoHandlerFound: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuerUri:
+          jwkSetUri:
+          audiences:
+  web:
+    resources:
+      addMappings: false
+
+server:
+  error:
+    whitelabel:
+      enabled: false
+  port: 8000
+
+springdoc:
+  pathsToMatch: /api/**
+  swaggerUi:
+    disableSwaggerDefaultUrl: true
+
+management:
+  endpoint:
+    health:
+      showDetails: ALWAYS
+  endpoints:
+    web:
+      exposure:
+        include: health
