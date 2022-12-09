@@ -82,10 +82,6 @@ public class ApplicationTests {
         return headers;
     }
 
-    protected ResultMatcher isCreated() {
-        return status().isCreated();
-    }
-
     protected ResultMatcher isOk() {
         return status().isOk();
     }
